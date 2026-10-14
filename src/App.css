@@ -1,38 +1,69 @@
-.App {
-  text-align: center;
+/* Eine schmale, mittig ausgerichtete Seite. */
+body {
+  font-family: Arial, sans-serif;
+  color: #252525;
+  max-width: 460px;
+  margin: 115px auto;
+  padding: 0 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 {
+  margin: 0 0 30px;
+  font-size: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Gemeinsame Gestaltung aller Buttons. */
+button {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #bdbdbd;
+  border-radius: 15px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.suche {
+  height: 70px;
   color: white;
+  background-color: #424242;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-.App-link {
-  color: #61dafb;
+.rezept-liste {
+  margin: 30px 0;
+  padding: 0;
+  list-style: none;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.rezept-karte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  background-color: white;
+  text-align: left;
+}
+
+.rezept-bild {
+  min-width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background-color: #e0e0e0;
+}
+
+.rezept-name {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.rezept-info {
+  color: #666;
+  font-size: 16px;
+}
+
+.rezept-pfeil {
+  margin-left: auto;
+  font-size: 28px;
 }
