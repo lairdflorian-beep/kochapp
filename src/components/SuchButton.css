@@ -1,0 +1,14 @@
+/* Gestaltung des Suchbuttons. */
+.suche {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #bdbdbd;
+  border-radius: 15px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  height: 70px;
+  color: white;
+  background-color: #424242;
+  font-size: 24px;
+  font-weight: bold;
+}
