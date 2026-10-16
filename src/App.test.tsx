@@ -1,9 +1,13 @@
 import React from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
+import { DEMO_BENUTZER, speichereAnmeldung } from './data/anmeldung';
 
 beforeEach(() => {
   window.history.replaceState(null, '', '/');
+  window.localStorage.clear();
+  window.sessionStorage.clear();
+  speichereAnmeldung(DEMO_BENUTZER);
 });
 
 afterEach(() => {
@@ -68,7 +72,7 @@ test('opens the apple cake in read mode with the ingredients and preparation fro
   ]);
   expect(within(screen.getByRole('region', { name: 'Zubereitung' })).getByRole('list').tagName).toBe('OL');
   expect(screen.getByRole('button', { name: 'Bearbeiten' })).toBeEnabled();
-  expect(screen.getByRole('button', { name: 'Löschen' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Löschen' })).toBeEnabled();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Speichern' })).not.toBeInTheDocument();
@@ -79,10 +83,10 @@ test('opens the prefilled apple cake form only after choosing edit', () => {
 
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen/bearbeiten');
   expect(screen.getByRole('heading', { name: 'Rezept bearbeiten' })).toBeInTheDocument();
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Omas Apfelkuchen');
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveFocus();
-  expect(screen.getByRole('textbox', { name: 'Autor' })).toHaveValue('Oma');
-  expect(screen.getByRole('spinbutton', { name: 'Dauer (Minuten)' })).toHaveValue(75);
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Omas Apfelkuchen');
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveFocus();
+  expect(screen.queryByRole('textbox', { name: 'Autor' })).not.toBeInTheDocument();
+  expect(screen.getByRole('spinbutton', { name: 'Zubereitungszeit (Minuten)' })).toHaveValue(75);
   expect(screen.getByLabelText('Zutaten (eine pro Zeile)')).toHaveValue(
     '6 Äpfel\n250 g Mehl\n125 g Zucker\n125 g Butter\n2 Eier'
   );
@@ -105,27 +109,25 @@ test.each([
   expect(screen.getByRole('heading', { name, level: 1 })).toBeInTheDocument();
   expect(screen.getByText(`von ${autor} · ${dauer} Min.`)).toBeInTheDocument();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Löschen' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Löschen' })).toBeEnabled();
   fireEvent.click(screen.getByRole('button', { name: 'Bearbeiten' }));
 
   expect(screen.getByRole('heading', { name: 'Rezept bearbeiten' })).toBeInTheDocument();
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue(name);
-  expect(screen.getByRole('textbox', { name: 'Autor' })).toHaveValue(autor);
-  expect(screen.getByRole('spinbutton', { name: 'Dauer (Minuten)' })).toHaveValue(dauer);
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue(name);
+  expect(screen.queryByRole('textbox', { name: 'Autor' })).not.toBeInTheDocument();
+  expect(screen.getByRole('spinbutton', { name: 'Zubereitungszeit (Minuten)' })).toHaveValue(dauer);
   expect(window.location.hash).toBe(`#/rezepte/${id}/bearbeiten`);
   expect(screen.getByLabelText('Zutaten (eine pro Zeile)')).toHaveValue('');
   expect(screen.getByLabelText('Zubereitung (ein Schritt pro Zeile)')).toHaveValue('');
 });
 
-test('returns from the form to the recipe list without saving', () => {
+test('returns from the form to the recipe detail without saving', () => {
   oeffneApfelkuchenFormular();
-  fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Nicht gespeichert' } });
+  fireEvent.change(screen.getByRole('textbox', { name: 'Rezeptname' }), { target: { value: 'Nicht gespeichert' } });
   fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
 
-  expect(screen.getByRole('heading', { name: 'Familienkochbuch' })).toBeInTheDocument();
-  expect(within(screen.getByRole('list', { name: 'Rezepte' })).getAllByRole('listitem')).toHaveLength(5);
-  expect(screen.getByRole('button', { name: /Omas Apfelkuchen/ })).toBeInTheDocument();
-  expect(window.location.hash).toBe('');
+  expect(screen.getByRole('heading', { name: 'Omas Apfelkuchen' })).toBeInTheDocument();
+  expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen');
 });
 
 test('supports direct links and browser hash navigation', () => {
@@ -149,16 +151,16 @@ test('supports direct links and browser hash navigation', () => {
 test('supports form direct links and resets fields when navigating to another recipe', () => {
   window.history.replaceState(null, '', '/#/rezepte/omas-apfelkuchen/bearbeiten');
   render(<App />);
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Omas Apfelkuchen');
-  fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Entwurf' } });
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Omas Apfelkuchen');
+  fireEvent.change(screen.getByRole('textbox', { name: 'Rezeptname' }), { target: { value: 'Entwurf' } });
 
   act(() => {
     window.history.replaceState(null, '', '/#/rezepte/pfannkuchen/bearbeiten');
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Pfannkuchen');
-  expect(screen.getByRole('textbox', { name: 'Autor' })).toHaveValue('Lena');
-  expect(screen.getByRole('spinbutton', { name: 'Dauer (Minuten)' })).toHaveValue(20);
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Pfannkuchen');
+  expect(screen.queryByRole('textbox', { name: 'Autor' })).not.toBeInTheDocument();
+  expect(screen.getByRole('spinbutton', { name: 'Zubereitungszeit (Minuten)' })).toHaveValue(20);
   expect(screen.getByLabelText('Zutaten (eine pro Zeile)')).toHaveValue('');
 
   act(() => {
@@ -171,7 +173,7 @@ test('supports form direct links and resets fields when navigating to another re
     window.history.replaceState(null, '', '/#/rezepte/pfannkuchen/bearbeiten');
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Pfannkuchen');
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Pfannkuchen');
 });
 
 test('supports browser back and forward between the list, read mode and the form', async () => {
@@ -189,7 +191,7 @@ test('supports browser back and forward between the list, read mode and the form
 
   act(() => { window.history.forward(); });
   expect(await screen.findByRole('heading', { name: 'Rezept bearbeiten' })).toBeInTheDocument();
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Omas Apfelkuchen');
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Omas Apfelkuchen');
 });
 
 test.each(['', '/bearbeiten'])('handles an unknown recipe at route %s and allows returning to the list', (suffix) => {
@@ -200,65 +202,65 @@ test.each(['', '/bearbeiten'])('handles an unknown recipe at route %s and allows
   expect(screen.getByRole('list', { name: 'Rezepte' })).toBeInTheDocument();
 });
 
-test('saves edited fields to both the detail page and the recipe card', () => {
+test('saves edited fields while preserving the original author in the detail page and recipe card', () => {
   oeffneApfelkuchenFormular();
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveFocus();
-  fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: ' Neuer Kuchen ' } });
-  fireEvent.change(screen.getByRole('textbox', { name: 'Autor' }), { target: { value: ' Alex ' } });
-  fireEvent.change(screen.getByRole('spinbutton', { name: 'Dauer (Minuten)' }), { target: { value: '50' } });
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveFocus();
+  fireEvent.change(screen.getByRole('textbox', { name: 'Rezeptname' }), { target: { value: ' Neuer Kuchen ' } });
+  expect(screen.queryByLabelText('Autor')).not.toBeInTheDocument();
+  fireEvent.change(screen.getByRole('spinbutton', { name: 'Zubereitungszeit (Minuten)' }), { target: { value: '50' } });
   fireEvent.change(screen.getByLabelText('Zutaten (eine pro Zeile)'), { target: { value: ' 3 Äpfel\n\n 100 g Mehl ' } });
   fireEvent.change(screen.getByLabelText('Zubereitung (ein Schritt pro Zeile)'), { target: { value: ' Mischen.\n Backen. ' } });
   fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
 
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen');
   expect(screen.getByRole('heading', { name: 'Neuer Kuchen' })).toBeInTheDocument();
-  expect(screen.getByText('von Alex · 50 Min.')).toBeInTheDocument();
+  expect(screen.getByText('von Oma · 50 Min.')).toBeInTheDocument();
   expect(within(screen.getByRole('region', { name: 'Zutaten' })).getAllByRole('listitem').map((item) => item.textContent))
     .toEqual(['3 Äpfel', '100 g Mehl']);
   expect(within(screen.getByRole('region', { name: 'Zubereitung' })).getAllByRole('listitem').map((item) => item.textContent))
     .toEqual(['Mischen.', 'Backen.']);
 
   fireEvent.click(screen.getByRole('button', { name: 'Zurück' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Neuer Kuchen von Alex · 50 Min.' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Neuer Kuchen von Oma · 50 Min.' }));
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen');
   expect(screen.getByRole('heading', { name: 'Neuer Kuchen' })).toBeInTheDocument();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Bearbeiten' }));
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Neuer Kuchen');
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Neuer Kuchen');
   expect(screen.getByLabelText('Zutaten (eine pro Zeile)')).toHaveValue('3 Äpfel\n100 g Mehl');
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen/bearbeiten');
 });
 
 test('discards edits when cancelled', () => {
   oeffneApfelkuchenFormular();
-  fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'Verworfen' } });
+  fireEvent.change(screen.getByRole('textbox', { name: 'Rezeptname' }), { target: { value: 'Verworfen' } });
   fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
 
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen');
   expect(screen.getByRole('heading', { name: 'Omas Apfelkuchen' })).toHaveFocus();
   fireEvent.click(screen.getByRole('button', { name: 'Bearbeiten' }));
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen/bearbeiten');
-  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Omas Apfelkuchen');
+  expect(screen.getByRole('textbox', { name: 'Rezeptname' })).toHaveValue('Omas Apfelkuchen');
 });
 
 test('rejects a recipe name containing only whitespace', () => {
   oeffneApfelkuchenFormular();
-  fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: '   ' } });
+  fireEvent.change(screen.getByRole('textbox', { name: 'Rezeptname' }), { target: { value: '   ' } });
   fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
-  expect(screen.getByRole('alert')).toHaveTextContent('Bitte Name, Autor und eine gültige Dauer');
+  expect(screen.getByRole('alert')).toHaveTextContent('Bitte Rezeptname und eine gültige Zubereitungszeit');
   expect(screen.getByRole('heading', { name: 'Rezept bearbeiten' })).toBeInTheDocument();
 });
 
-test('shows a disabled delete button without confirmation, navigation or data changes', () => {
-  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+test('cancels deletion without navigation or data changes', () => {
   oeffneApfelkuchen();
   const loeschen = screen.getByRole('button', { name: 'Löschen' });
-  expect(loeschen).toBeDisabled();
+  expect(loeschen).toBeEnabled();
   fireEvent.click(loeschen);
 
-  expect(confirmSpy).not.toHaveBeenCalled();
-  expect(alertSpy).not.toHaveBeenCalled();
+  const dialog = screen.getByRole('alertdialog', { name: 'Rezept löschen?' });
+  expect(within(dialog).getByRole('button', { name: 'Abbrechen' })).toHaveFocus();
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Abbrechen' }));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   expect(window.location.hash).toBe('#/rezepte/omas-apfelkuchen');
   expect(screen.getByRole('heading', { name: 'Omas Apfelkuchen' })).toBeInTheDocument();
 

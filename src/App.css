@@ -7,7 +7,7 @@ body {
 
 .App {
   max-width: 460px;
-  margin: 115px auto;
+  margin: 48px auto;
   padding: 0 20px;
 }
 
@@ -20,4 +20,117 @@ body {
 h1 {
   margin: 0 0 30px;
   font-size: 30px;
+}
+
+.App button:focus-visible,
+.App input:focus-visible,
+.App textarea:focus-visible {
+  outline: 3px solid #252525;
+  outline-offset: 3px;
+}
+
+.konto-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
+  min-height: 44px;
+}
+
+.start-aktionen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.start-aktionen .suche,
+.start-aktionen .rezept-aktion {
+  height: auto;
+  min-height: 64px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  font-size: 20px;
+}
+
+.formular-absenden {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.suchergebnis {
+  margin: 32px 0 20px;
+  font-weight: bold;
+}
+
+.anmelde-fehler,
+.speicher-fehler {
+  padding: 14px;
+  border: 1px solid #a32020;
+  border-radius: 8px;
+  color: #8b1b1b;
+  background: #fff5f5;
+  line-height: 1.5;
+}
+
+.statusmeldung {
+  padding: 12px;
+  border-radius: 8px;
+  background: #edf4ed;
+  color: #24552a;
+}
+
+.demo-hinweis {
+  margin-top: 32px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #f2f2f2;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.demo-hinweis p:last-child {
+  margin-bottom: 0;
+}
+
+.speicher-hinweis {
+  margin-top: 36px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.visuell-versteckt {
+  position: absolute;
+  width: 1px !important;
+  height: 1px;
+  padding: 0 !important;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .App,
+  .App--detail {
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+
+  .start-aktionen .suche,
+  .start-aktionen .rezept-aktion {
+    font-size: 18px;
+  }
 }

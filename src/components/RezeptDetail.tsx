@@ -1,47 +1,44 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Rezept } from '../data/rezepte';
-import RezeptFormular from './RezeptFormular';
+import LoeschDialog from './LoeschDialog';
 import './RezeptDetail.css';
 
 interface RezeptDetailProps {
   rezept: Rezept;
-  bearbeiten: boolean;
   onZurueck: () => void;
   onBearbeiten: () => void;
-  onAbbrechen: () => void;
-  onSpeichern: (rezept: Rezept) => void;
+  onLoeschen: () => boolean;
 }
 
-function RezeptDetail({ rezept, bearbeiten, onZurueck, onBearbeiten, onAbbrechen, onSpeichern }: RezeptDetailProps) {
+function RezeptDetail({ rezept, onZurueck, onBearbeiten, onLoeschen }: RezeptDetailProps) {
   const titel = useRef<HTMLHeadingElement>(null);
+  const loeschButton = useRef<HTMLButtonElement>(null);
+  const [loeschenOffen, setLoeschenOffen] = useState(false);
 
   useEffect(() => {
     titel.current?.focus();
-  }, [rezept.id, bearbeiten]);
+  }, [rezept.id]);
+
+  useEffect(() => {
+    if (!loeschenOffen && document.activeElement === document.body) loeschButton.current?.focus();
+  }, [loeschenOffen]);
 
   return (
     <article className="rezept-detail">
+      <div inert={loeschenOffen}>
       <button className="rezept-zurueck" type="button" onClick={onZurueck}>
         <span aria-hidden="true">←</span> Zurück
       </button>
 
-      {bearbeiten ? (
-        <RezeptFormular
-          rezept={rezept}
-          onAbbrechen={onAbbrechen}
-          onSpeichern={onSpeichern}
-        />
-      ) : (
-        <>
           <header>
             <h1 ref={titel} tabIndex={-1}>{rezept.name}</h1>
             <p className="rezept-detail-info">von {rezept.autor} · {rezept.dauerMinuten} Min.</p>
           </header>
 
-          <div className="rezept-detail-bild" aria-hidden="true">
-            <svg viewBox="0 0 345 160" preserveAspectRatio="none">
+          <div className="rezept-detail-bild">
+            {rezept.foto ? <img src={rezept.foto} alt={rezept.name} /> : <svg aria-hidden="true" viewBox="0 0 345 160" preserveAspectRatio="none">
               <path d="M0 0L345 160M345 0L0 160" />
-            </svg>
+            </svg>}
           </div>
 
           <section aria-labelledby="zutaten-titel">
@@ -66,12 +63,13 @@ function RezeptDetail({ rezept, bearbeiten, onZurueck, onBearbeiten, onAbbrechen
             <button className="rezept-aktion" type="button" onClick={onBearbeiten}>
               Bearbeiten
             </button>
-            <button className="rezept-aktion rezept-aktion--loeschen" type="button" disabled title="Löschen ist noch nicht verfügbar.">
+            <button className="rezept-aktion rezept-aktion--loeschen" type="button" ref={loeschButton}
+              onClick={() => setLoeschenOffen(true)}>
               Löschen
             </button>
           </div>
-        </>
-      )}
+      </div>
+      {loeschenOffen && <LoeschDialog name={rezept.name} onAbbrechen={() => setLoeschenOffen(false)} onLoeschen={onLoeschen} />}
     </article>
   );
 }

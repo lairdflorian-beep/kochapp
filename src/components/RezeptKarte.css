@@ -14,10 +14,23 @@
 }
 
 .rezept-bild {
+  flex: 0 0 60px;
   min-width: 60px;
   height: 60px;
+  overflow: hidden;
   border-radius: 10px;
   background-color: #e0e0e0;
+}
+
+.rezept-bild img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rezept-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .rezept-name {

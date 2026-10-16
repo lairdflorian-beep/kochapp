@@ -5,6 +5,7 @@ export interface Rezept {
   dauerMinuten: number;
   zutaten: string[];
   zubereitung: string[];
+  foto?: string;
 }
 
 export const rezepte: Rezept[] = [

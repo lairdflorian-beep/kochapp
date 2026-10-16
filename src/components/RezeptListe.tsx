@@ -17,6 +17,7 @@ function RezeptListe({ rezepte, onAuswaehlen }: RezeptListeProps) {
             name={rezept.name}
             autor={rezept.autor}
             dauerMinuten={rezept.dauerMinuten}
+            foto={rezept.foto}
             onAuswaehlen={() => onAuswaehlen(rezept.id)}
           />
         </li>

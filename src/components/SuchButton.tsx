@@ -1,13 +1,17 @@
 import React from 'react';
 import './SuchButton.css';
 
-function SuchButton() {
+interface SuchButtonProps {
+  onSuchen: () => void;
+}
+
+function SuchButton({ onSuchen }: SuchButtonProps) {
   return (
     <button
       id="suche"
       className="suche"
       type="button"
-      onClick={() => window.alert('Rezept suchen ...')}
+      onClick={onSuchen}
     >
       Rezept suchen
     </button>
@@ -15,3 +19,4 @@ function SuchButton() {
 }
 
 export default SuchButton;
+
