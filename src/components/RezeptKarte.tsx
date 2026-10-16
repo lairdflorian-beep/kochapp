@@ -5,11 +5,12 @@ interface RezeptKarteProps {
   name: string;
   autor: string;
   dauerMinuten: number;
+  onAuswaehlen?: () => void;
 }
 
-function RezeptKarte({ name, autor, dauerMinuten }: RezeptKarteProps) {
+function RezeptKarte({ name, autor, dauerMinuten, onAuswaehlen }: RezeptKarteProps) {
   return (
-    <button className="rezept-karte" type="button" onClick={() => window.alert(name)}>
+    <button className="rezept-karte" type="button" onClick={onAuswaehlen}>
       <span className="rezept-bild" aria-hidden="true"></span>
       <span className="rezept-text">
         <span className="rezept-name">{name}</span>

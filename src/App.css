@@ -2,9 +2,19 @@
 body {
   font-family: Arial, sans-serif;
   color: #252525;
+  margin: 0;
+}
+
+.App {
   max-width: 460px;
   margin: 115px auto;
   padding: 0 20px;
+}
+
+.App--detail {
+  max-width: 345px;
+  margin: 64px auto;
+  padding: 0 24px;
 }
 
 h1 {

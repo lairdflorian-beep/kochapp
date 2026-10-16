@@ -1,16 +1,14 @@
 import React from 'react';
+import { Rezept } from '../data/rezepte';
 import RezeptKarte from './RezeptKarte';
 import './RezeptListe.css';
 
-const rezepte = [
-  { id: 'omas-apfelkuchen', name: 'Omas Apfelkuchen', autor: 'Oma', dauerMinuten: 75 },
-  { id: 'papas-gulasch', name: 'Papas Gulasch', autor: 'Papa', dauerMinuten: 90 },
-  { id: 'kartoffelsuppe', name: 'Kartoffelsuppe', autor: 'Mama', dauerMinuten: 40 },
-  { id: 'pfannkuchen', name: 'Pfannkuchen', autor: 'Lena', dauerMinuten: 20 },
-  { id: 'gemuese-lasagne', name: 'Gemüse-Lasagne', autor: 'Opa', dauerMinuten: 60 },
-];
+interface RezeptListeProps {
+  rezepte: Rezept[];
+  onAuswaehlen: (id: string) => void;
+}
 
-function RezeptListe() {
+function RezeptListe({ rezepte, onAuswaehlen }: RezeptListeProps) {
   return (
     <ul className="rezept-liste" aria-label="Rezepte">
       {rezepte.map((rezept) => (
@@ -19,6 +17,7 @@ function RezeptListe() {
             name={rezept.name}
             autor={rezept.autor}
             dauerMinuten={rezept.dauerMinuten}
+            onAuswaehlen={() => onAuswaehlen(rezept.id)}
           />
         </li>
       ))}
@@ -27,4 +26,3 @@ function RezeptListe() {
 }
 
 export default RezeptListe;
-

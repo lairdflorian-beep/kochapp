@@ -35,23 +35,23 @@ test('updates the recipe card when its props change', () => {
   expect(screen.queryByText('von Kim · 15 Min.')).not.toBeInTheDocument();
 });
 
-test('alerts the current recipe name when the card is clicked', () => {
-  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+test('calls the current selection callback when the card is clicked', () => {
+  const onAuswaehlen = jest.fn();
+  const onAndereAuswahl = jest.fn();
   const { rerender } = render(
-    <RezeptKarte name="Tomatensuppe" autor="Alex" dauerMinuten={25} />
+    <RezeptKarte name="Tomatensuppe" autor="Alex" dauerMinuten={25} onAuswaehlen={onAuswaehlen} />
   );
 
-  expect(alertSpy).not.toHaveBeenCalled();
+  expect(onAuswaehlen).not.toHaveBeenCalled();
 
   fireEvent.click(screen.getByRole('button'));
 
-  expect(alertSpy).toHaveBeenCalledTimes(1);
-  expect(alertSpy).toHaveBeenNthCalledWith(1, 'Tomatensuppe');
+  expect(onAuswaehlen).toHaveBeenCalledTimes(1);
 
-  rerender(<RezeptKarte name="Crème brûlée & Beeren" autor="Renée" dauerMinuten={0} />);
+  rerender(<RezeptKarte name="Crème brûlée & Beeren" autor="Renée" dauerMinuten={0} onAuswaehlen={onAndereAuswahl} />);
   fireEvent.click(screen.getByRole('button'));
 
-  expect(alertSpy).toHaveBeenCalledTimes(2);
-  expect(alertSpy).toHaveBeenNthCalledWith(2, 'Crème brûlée & Beeren');
+  expect(onAuswaehlen).toHaveBeenCalledTimes(1);
+  expect(onAndereAuswahl).toHaveBeenCalledTimes(1);
 });
 
