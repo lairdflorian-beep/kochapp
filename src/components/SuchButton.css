@@ -6,9 +6,10 @@
   border-radius: 15px;
   font-family: Arial, sans-serif;
   cursor: pointer;
-  height: 70px;
+  min-height: 70px;
   color: white;
   background-color: #424242;
   font-size: 24px;
   font-weight: bold;
 }
+

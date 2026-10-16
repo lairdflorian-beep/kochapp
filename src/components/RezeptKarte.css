@@ -1,16 +1,27 @@
 .rezept-karte {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  margin-bottom: 16px;
+  height: 100%;
+  margin: 0;
   padding: 15px;
   border: 1px solid #bdbdbd;
   border-radius: 15px;
   background-color: white;
+  color: inherit;
   font-family: Arial, sans-serif;
+  line-height: 1.45;
   text-align: left;
   cursor: pointer;
+}
+
+@media (hover: hover) {
+  .rezept-karte:hover {
+    border-color: #777;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  }
 }
 
 .rezept-bild {
@@ -23,6 +34,7 @@
 }
 
 .rezept-bild img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -37,6 +49,7 @@
   display: block;
   font-size: 20px;
   font-weight: bold;
+  margin-bottom: 4px;
 }
 
 .rezept-info {
@@ -45,7 +58,38 @@
 }
 
 .rezept-pfeil {
+  flex-shrink: 0;
   margin-left: auto;
   font-size: 28px;
+}
+
+@media (min-width: 768px) {
+  .rezept-karte {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 0;
+    padding: 0;
+  }
+
+  .rezept-bild {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .rezept-text {
+    padding: 20px 0 20px 20px;
+  }
+
+  .rezept-pfeil {
+    align-self: center;
+    padding-right: 20px;
+  }
 }
 
