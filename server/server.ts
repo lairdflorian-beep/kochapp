@@ -9,10 +9,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.listen(3000, () => {
-    console.log("Server läuft unter http://localhost:3000");
-});
-
 const rezepte = [
     { id: 1, name: "Omas Apfelkuchen", autor: "Oma", dauerMinuten: 75 },
     { id: 2, name: "Papas Gulasch", autor: "Papa", dauerMinuten: 90 },
@@ -37,17 +33,33 @@ app.get("/rezepte/:id", (req, res) => {
 let naechsteId = rezepte.length + 1;
 
 app.post("/rezepte", (req, res) => {
-    if (!req.body || typeof req.body.name !== "string") {
-        res.status(400).json({ error: "name fehlt" });
+    if (!req.body || typeof req.body.name !== "string" || !req.body.name.trim()) {
+        res.status(400).json({ error: "name muss ein nicht leerer Text sein" });
+        return;
+    }
+    if (typeof req.body.autor !== "string" || !req.body.autor.trim()) {
+        res.status(400).json({ error: "autor muss ein nicht leerer Text sein" });
+        return;
+    }
+    if (
+        typeof req.body.dauerMinuten !== "number" ||
+        !Number.isFinite(req.body.dauerMinuten) ||
+        req.body.dauerMinuten <= 0
+    ) {
+        res.status(400).json({ error: "dauerMinuten muss eine endliche Zahl größer als 0 sein" });
         return;
     }
     const rezept = {
         id: naechsteId,
-        name: req.body.name,
-        autor: req.body.autor,
+        name: req.body.name.trim(),
+        autor: req.body.autor.trim(),
         dauerMinuten: req.body.dauerMinuten,
     };
     naechsteId = naechsteId + 1;
     rezepte.push(rezept);
     res.status(201).json(rezept);
+});
+
+app.listen(3000, () => {
+    console.log("Server läuft unter http://localhost:3000");
 });
