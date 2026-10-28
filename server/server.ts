@@ -9,6 +9,21 @@ app.use((req, res, next) => {
     next();
 });
 
+app.post("/login", (req, res) => {
+    const username = "max.mustermann";
+    const password = "test1234";
+    const credentials = req.get("Authorization")?.match(/^Basic +([^\s]+)$/i)?.[1];
+    const expectedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
+
+    if (credentials !== expectedCredentials) {
+        res.set("WWW-Authenticate", 'Basic realm="Kochapp", charset="UTF-8"');
+        res.status(401).json({ error: "Benutzername oder Passwort ist falsch." });
+        return;
+    }
+
+    res.json({ username });
+});
+
 const rezepte = [
     { id: 1, name: "Omas Apfelkuchen", autor: "Oma", dauerMinuten: 75 },
     { id: 2, name: "Papas Gulasch", autor: "Papa", dauerMinuten: 90 },
@@ -60,6 +75,6 @@ app.post("/rezepte", (req, res) => {
     res.status(201).json(rezept);
 });
 
-app.listen(3000, () => {
-    console.log("Server läuft unter http://localhost:3000");
+app.listen(3001, () => {
+    console.log("Server läuft unter http://localhost:3001");
 });

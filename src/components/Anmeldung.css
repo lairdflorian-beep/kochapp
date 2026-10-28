@@ -1,0 +1,35 @@
+.anmeldung {
+  margin-bottom: 30px;
+}
+
+.anmeldung dialog {
+  width: min(360px, calc(100vw - 80px));
+  max-height: calc(100vh - 80px);
+  padding: 20px;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+.anmeldung dialog::backdrop {
+  background: #0007;
+}
+
+.anmeldung form,
+.anmeldung label {
+  display: grid;
+  gap: 8px;
+}
+
+.anmeldung form {
+  margin-bottom: 8px;
+}
+
+.anmeldung input {
+  padding: 8px;
+  font: inherit;
+}
+
+.anmeldung [role="alert"] {
+  color: #a01818;
+}
