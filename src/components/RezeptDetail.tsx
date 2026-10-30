@@ -1,6 +1,4 @@
 import React from 'react';
-import RezeptKarte from "./RezeptKarte";
-
 
 function RezeptDetail () {
     return (
