@@ -34,11 +34,11 @@ let naechsteId = rezepte.length + 1;
 
 app.post("/rezepte", (req, res) => {
     if (!req.body || typeof req.body.name !== "string" || !req.body.name.trim()) {
-        res.status(400).json({ error: "name muss ein nicht leerer Text sein" });
+        res.status(400).json({ error: "name darf nicht leer sein" });
         return;
     }
     if (typeof req.body.autor !== "string" || !req.body.autor.trim()) {
-        res.status(400).json({ error: "autor muss ein nicht leerer Text sein" });
+        res.status(400).json({ error: "autor darf nicht leer sein" });
         return;
     }
     if (
@@ -46,7 +46,7 @@ app.post("/rezepte", (req, res) => {
         !Number.isFinite(req.body.dauerMinuten) ||
         req.body.dauerMinuten <= 0
     ) {
-        res.status(400).json({ error: "dauerMinuten muss eine endliche Zahl größer als 0 sein" });
+        res.status(400).json({ error: "dauerMinuten muss eine Zahl größer als 0 sein" });
         return;
     }
     const rezept = {
@@ -60,6 +60,6 @@ app.post("/rezepte", (req, res) => {
     res.status(201).json(rezept);
 });
 
-app.listen(3000, () => {
-    console.log("Server läuft unter http://localhost:3000");
+app.listen(3001, () => {
+    console.log("Server läuft unter http://localhost:3001");
 });

@@ -1,0 +1,52 @@
+@host = http://localhost:3001
+
+### Alle Rezepte abrufen – erwartet 200
+GET {{host}}/rezepte
+
+### Ein Rezept abrufen – erwartet 200
+GET {{host}}/rezepte/1
+
+### Unbekannte ID – erwartet 404
+GET {{host}}/rezepte/99
+
+### Rezept anlegen – erwartet 201
+POST {{host}}/rezepte
+Content-Type: application/json
+
+{
+  "name": "Linsencurry",
+  "autor": "Lena",
+  "dauerMinuten": 35
+}
+
+### Ohne name – erwartet 400
+POST {{host}}/rezepte
+Content-Type: application/json
+
+{
+  "autor": "Lena",
+  "dauerMinuten": 35
+}
+
+### Leerer autor – erwartet 400
+POST {{host}}/rezepte
+Content-Type: application/json
+
+{
+  "name": "Linsencurry",
+  "autor": "   ",
+  "dauerMinuten": 35
+}
+
+### Ungültige dauerMinuten – erwartet 400
+POST {{host}}/rezepte
+Content-Type: application/json
+
+{
+  "name": "Linsencurry",
+  "autor": "Lena",
+  "dauerMinuten": 0
+}
+
+### Ohne Body – erwartet 400
+POST {{host}}/rezepte
