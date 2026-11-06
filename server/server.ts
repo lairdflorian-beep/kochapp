@@ -12,6 +12,26 @@ app.use((req, res, next) => {
     next();
 });
 
+// Zugangsdaten für die Übung. Im Betrieb gehören sie nicht in den Code.
+const BENUTZER = "max.mustermann";
+const PASSWORT = "test1234";
+
+// Middleware: prüft die Anmeldung per HTTP-Basic-Authentifizierung.
+// Bei fehlender oder falscher Anmeldung antwortet sie mit 401, sonst gibt sie die Anfrage an den Handler weiter.
+function anmeldungPruefen(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const header = req.get("Authorization") || "";
+    const anmeldedaten = Buffer.from(header.replace("Basic ", ""), "base64").toString();
+    if (anmeldedaten !== `${BENUTZER}:${PASSWORT}`) {
+        res.status(401).json({ error: "Anmeldung erforderlich" });
+        return;
+    }
+    next();
+}
+
+app.post("/login", anmeldungPruefen, (req, res) => {
+    res.json({ benutzer: BENUTZER });
+});
+
 const rezepte = [
     { id: 1, name: "Omas Apfelkuchen", autor: "Oma", dauerMinuten: 75 },
     { id: 2, name: "Papas Gulasch", autor: "Papa", dauerMinuten: 90 },
@@ -35,7 +55,7 @@ app.get("/rezepte/:id", (req, res) => {
 
 let naechsteId = rezepte.length + 1;
 
-app.post("/rezepte", (req, res) => {
+app.post("/rezepte", anmeldungPruefen, (req, res) => {
     if (!req.body || typeof req.body.name !== "string" || !req.body.name.trim()) {
         res.status(400).json({ error: "name darf nicht leer sein" });
         return;

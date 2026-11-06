@@ -49,3 +49,26 @@
   margin: 0;
   color: #b3261e;
 }
+
+.anmeldung {
+  margin-bottom: 16px;
+}
+
+.anmeldung-status {
+  margin: 0;
+  font-weight: bold;
+}
+
+.anmeldung-hinweis {
+  color: #666;
+  font-size: 14px;
+}
+
+.anmeldung-hinweis p,
+.anmeldung-hinweis ul {
+  margin: 0;
+}
+
+.anmeldung-hinweis ul {
+  padding-left: 20px;
+}

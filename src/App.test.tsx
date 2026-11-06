@@ -25,6 +25,14 @@ beforeEach(() => {
   global.fetch = fetchMock;
 });
 
+async function anmelden(passwort = 'test1234') {
+  const anmeldung = screen.getByRole('form', { name: 'Anmeldung' });
+  fireEvent.change(within(anmeldung).getByLabelText('Benutzername'), { target: { value: 'max.mustermann' } });
+  fireEvent.change(within(anmeldung).getByLabelText('Passwort'), { target: { value: passwort } });
+  fireEvent.submit(anmeldung);
+  return anmeldung;
+}
+
 function formularAusfuellen(name: string, autor: string, dauerMinuten: string) {
   const formular = screen.getByRole('form', { name: 'Neues Rezept' });
   fireEvent.change(within(formular).getByLabelText('Name'), { target: { value: name } });
@@ -101,6 +109,10 @@ test('creates a recipe via POST and adds the saved recipe to the list', async ()
   render(<App />);
   await screen.findByRole('list', { name: 'Rezepte' });
 
+  fetchMock.mockImplementation(() => antwort(200, { benutzer: 'max.mustermann' }));
+  await anmelden();
+  expect(await screen.findByText('Angemeldet als max.mustermann')).toBeInTheDocument();
+
   const gespeichert = { id: 6, name: 'Linsencurry', autor: 'Lena', dauerMinuten: 35 };
   fetchMock.mockImplementation(() => antwort(201, gespeichert));
 
@@ -112,7 +124,7 @@ test('creates a recipe via POST and adds the saved recipe to the list', async ()
   expect(within(recipeList).getAllByRole('listitem')).toHaveLength(6);
   expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3001/rezepte', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Basic bWF4Lm11c3Rlcm1hbm46dGVzdDEyMzQ=' },
     body: JSON.stringify({ name: 'Linsencurry', autor: 'Lena', dauerMinuten: 35 }),
   });
   expect(within(formular).getByLabelText('Name')).toHaveValue('');
@@ -121,6 +133,10 @@ test('creates a recipe via POST and adds the saved recipe to the list', async ()
 test('shows the error message of the server and keeps the input', async () => {
   render(<App />);
   await screen.findByRole('list', { name: 'Rezepte' });
+
+  fetchMock.mockImplementation(() => antwort(200, { benutzer: 'max.mustermann' }));
+  await anmelden();
+  await screen.findByText('Angemeldet als max.mustermann');
 
   fetchMock.mockImplementation(() =>
     antwort(400, { error: 'dauerMinuten muss eine Zahl größer als 0 sein' })
@@ -231,4 +247,60 @@ test('shows a helpful message when the server is not reachable while saving', as
   );
   expect(meldung).not.toHaveTextContent('Failed to fetch');
   expect(within(formular).getByLabelText('Name')).toHaveValue('Linsencurry');
+});
+
+test('logs in with valid credentials and sends them as basic authentication', async () => {
+  render(<App />);
+  await screen.findByRole('list', { name: 'Rezepte' });
+
+  const anmeldeformular = screen.getByRole('form', { name: 'Anmeldung' });
+  expect(within(anmeldeformular).getByText('Beispiel-Zugangsdaten:')).toBeInTheDocument();
+  const zugangsdaten = within(anmeldeformular).getAllByRole('listitem');
+  expect(zugangsdaten[0]).toHaveTextContent('Benutzername: max.mustermann');
+  expect(zugangsdaten[1]).toHaveTextContent('Passwort: test1234');
+
+  fetchMock.mockImplementation(() => antwort(200, { benutzer: 'max.mustermann' }));
+  await anmelden();
+
+  expect(await screen.findByText('Angemeldet als max.mustermann')).toBeInTheDocument();
+  expect(screen.queryByText(/Beispiel-Zugangsdaten/)).not.toBeInTheDocument();
+  expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3001/login', {
+    method: 'POST',
+    headers: { Authorization: 'Basic bWF4Lm11c3Rlcm1hbm46dGVzdDEyMzQ=' },
+  });
+
+  fireEvent.click(screen.getByRole('button', { name: 'Abmelden' }));
+  expect(screen.getByRole('form', { name: 'Anmeldung' })).toBeInTheDocument();
+});
+
+test('shows an error for a wrong password', async () => {
+  render(<App />);
+  await screen.findByRole('list', { name: 'Rezepte' });
+
+  fetchMock.mockImplementation(() => antwort(401, { error: 'Anmeldung erforderlich' }));
+  const anmeldung = await anmelden('falsch');
+
+  expect(await within(anmeldung).findByRole('alert')).toHaveTextContent('Benutzername oder Passwort ist falsch.');
+  expect(screen.queryByText(/Angemeldet als/)).not.toBeInTheDocument();
+});
+
+test('rejects creating a recipe without login with a helpful message', async () => {
+  render(<App />);
+  await screen.findByRole('list', { name: 'Rezepte' });
+
+  fetchMock.mockImplementation(() => antwort(401, { error: 'Anmeldung erforderlich' }));
+
+  const formular = formularAusfuellen('Linsencurry', 'Lena', '35');
+  fireEvent.submit(formular);
+
+  expect(await within(formular).findByRole('alert')).toHaveTextContent(
+    'Bitte melde dich an, um ein Rezept zu speichern.'
+  );
+  expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3001/rezepte', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Linsencurry', autor: 'Lena', dauerMinuten: 35 }),
+  });
+  expect(within(formular).getByLabelText('Name')).toHaveValue('Linsencurry');
+  expect(within(screen.getByRole('list', { name: 'Rezepte' })).getAllByRole('listitem')).toHaveLength(5);
 });

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ladeRezepte, legeRezeptAn } from './api';
+import { ladeRezepte, legeRezeptAn, meldeAn } from './api';
 import type { NeuesRezept, Rezept } from './api';
+import Anmeldung from './components/Anmeldung';
 import RezeptDetail from './components/RezeptDetail';
 import RezeptFormular from './components/RezeptFormular';
 import RezeptListe from './components/RezeptListe';
@@ -16,6 +17,8 @@ function App() {
   const [ausgewaehlteId, setAusgewaehlteId] = useState<number | null>(null);
   const [sucheAktiv, setSucheAktiv] = useState(false);
   const [suchbegriff, setSuchbegriff] = useState('');
+  const [benutzer, setBenutzer] = useState<string | null>(null);
+  const [zugang, setZugang] = useState<string | null>(null);
 
   useEffect(() => {
     let aktiv = true;
@@ -45,8 +48,19 @@ function App() {
     };
   }, []);
 
+  async function anmelden(name: string, passwort: string) {
+    const neuerZugang = await meldeAn(name, passwort);
+    setZugang(neuerZugang);
+    setBenutzer(name);
+  }
+
+  function abmelden() {
+    setZugang(null);
+    setBenutzer(null);
+  }
+
   async function rezeptAnlegen(neuesRezept: NeuesRezept) {
-    const gespeichert = await legeRezeptAn(neuesRezept);
+    const gespeichert = await legeRezeptAn(neuesRezept, zugang);
     setRezepte((bisherigeRezepte) => [...bisherigeRezepte, gespeichert]);
   }
 
@@ -84,6 +98,8 @@ function App() {
         {laedt && <p className="status">Rezepte werden geladen …</p>}
         {fehler && <p className="status status-fehler" role="alert">{fehler}</p>}
         {!laedt && !fehler && <RezeptListe rezepte={rezepte} onAuswaehlen={setAusgewaehlteId} />}
+
+        <Anmeldung benutzer={benutzer} onAnmelden={anmelden} onAbmelden={abmelden} />
 
         <RezeptFormular onSpeichern={rezeptAnlegen} />
       </div>
