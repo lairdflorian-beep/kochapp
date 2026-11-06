@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ladeRezepte, legeRezeptAn, meldeAn } from './api';
 import type { NeuesRezept, Rezept } from './api';
+import { benutzerAusZugang, leseZugang, loescheZugang, speichereZugang } from './cookie';
 import Anmeldung from './components/Anmeldung';
 import RezeptDetail from './components/RezeptDetail';
 import RezeptFormular from './components/RezeptFormular';
@@ -17,8 +18,9 @@ function App() {
   const [ausgewaehlteId, setAusgewaehlteId] = useState<number | null>(null);
   const [sucheAktiv, setSucheAktiv] = useState(false);
   const [suchbegriff, setSuchbegriff] = useState('');
-  const [benutzer, setBenutzer] = useState<string | null>(null);
-  const [zugang, setZugang] = useState<string | null>(null);
+  // Eine gespeicherte Anmeldung aus dem Cookie dient als Anfangswert, damit nach dem Neuladen keine erneute Anmeldung nötig ist.
+  const [zugang, setZugang] = useState<string | null>(leseZugang);
+  const [benutzer, setBenutzer] = useState<string | null>(() => (zugang ? benutzerAusZugang(zugang) : null));
 
   useEffect(() => {
     let aktiv = true;
@@ -50,11 +52,13 @@ function App() {
 
   async function anmelden(name: string, passwort: string) {
     const neuerZugang = await meldeAn(name, passwort);
+    speichereZugang(neuerZugang);
     setZugang(neuerZugang);
     setBenutzer(name);
   }
 
   function abmelden() {
+    loescheZugang();
     setZugang(null);
     setBenutzer(null);
   }

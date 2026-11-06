@@ -25,6 +25,10 @@ beforeEach(() => {
   global.fetch = fetchMock;
 });
 
+afterEach(() => {
+  document.cookie = 'zugang=; max-age=0; path=/';
+});
+
 async function anmelden(passwort = 'test1234') {
   const anmeldung = screen.getByRole('form', { name: 'Anmeldung' });
   fireEvent.change(within(anmeldung).getByLabelText('Benutzername'), { target: { value: 'max.mustermann' } });
@@ -303,4 +307,33 @@ test('rejects creating a recipe without login with a helpful message', async () 
   });
   expect(within(formular).getByLabelText('Name')).toHaveValue('Linsencurry');
   expect(within(screen.getByRole('list', { name: 'Rezepte' })).getAllByRole('listitem')).toHaveLength(5);
+});
+
+test('keeps the login after a reload and forgets it after logout', async () => {
+  fetchMock.mockImplementation((url: string) =>
+    url.endsWith('/login') ? antwort(200, { benutzer: 'max.mustermann' }) : antwort(200, rezepte)
+  );
+  const erster = render(<App />);
+  await screen.findByRole('list', { name: 'Rezepte' });
+  await anmelden();
+  await screen.findByText('Angemeldet als max.mustermann');
+  erster.unmount();
+
+  // Neuladen der Seite: Die App startet neu und liest die Anmeldung aus dem Cookie.
+  fetchMock.mockImplementation(() => antwort(200, rezepte));
+  render(<App />);
+  await screen.findByRole('list', { name: 'Rezepte' });
+  expect(screen.getByText('Angemeldet als max.mustermann')).toBeInTheDocument();
+  expect(screen.queryByRole('form', { name: 'Anmeldung' })).not.toBeInTheDocument();
+
+  const gespeichert = { id: 6, name: 'Linsencurry', autor: 'Lena', dauerMinuten: 35 };
+  fetchMock.mockImplementation(() => antwort(201, gespeichert));
+  fireEvent.submit(formularAusfuellen('Linsencurry', 'Lena', '35'));
+  expect(await screen.findByRole('button', { name: /Linsencurry/ })).toBeInTheDocument();
+  expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3001/rezepte', expect.objectContaining({
+    headers: { 'Content-Type': 'application/json', Authorization: 'Basic bWF4Lm11c3Rlcm1hbm46dGVzdDEyMzQ=' },
+  }));
+
+  fireEvent.click(screen.getByRole('button', { name: 'Abmelden' }));
+  expect(document.cookie).not.toContain('zugang=');
 });
