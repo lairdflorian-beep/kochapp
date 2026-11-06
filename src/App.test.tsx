@@ -3,11 +3,11 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 
 const rezepte = [
-  { id: 1, name: 'Omas Apfelkuchen', autor: 'Oma', dauerMinuten: 75 },
-  { id: 2, name: 'Papas Gulasch', autor: 'Papa', dauerMinuten: 90 },
-  { id: 3, name: 'Kartoffelsuppe', autor: 'Mama', dauerMinuten: 40 },
-  { id: 4, name: 'Pfannkuchen', autor: 'Lena', dauerMinuten: 20 },
-  { id: 5, name: 'Gemüse-Lasagne', autor: 'Opa', dauerMinuten: 60 },
+  { _id: 'r1', name: 'Omas Apfelkuchen', autor: 'Oma', dauerMinuten: 75 },
+  { _id: 'r2', name: 'Papas Gulasch', autor: 'Papa', dauerMinuten: 90 },
+  { _id: 'r3', name: 'Kartoffelsuppe', autor: 'Mama', dauerMinuten: 40 },
+  { _id: 'r4', name: 'Pfannkuchen', autor: 'Lena', dauerMinuten: 20 },
+  { _id: 'r5', name: 'Gemüse-Lasagne', autor: 'Opa', dauerMinuten: 60 },
 ];
 
 function antwort(status: number, daten: unknown) {
@@ -101,7 +101,7 @@ test('creates a recipe via POST and adds the saved recipe to the list', async ()
   render(<App />);
   await screen.findByRole('list', { name: 'Rezepte' });
 
-  const gespeichert = { id: 6, name: 'Linsencurry', autor: 'Lena', dauerMinuten: 35 };
+  const gespeichert = { _id: 'r6', name: 'Linsencurry', autor: 'Lena', dauerMinuten: 35 };
   fetchMock.mockImplementation(() => antwort(201, gespeichert));
 
   const formular = formularAusfuellen('Linsencurry', 'Lena', '35');
@@ -156,7 +156,7 @@ test('shows the filled detail view of a recipe and returns to the list', async (
 
   expect(await screen.findByRole('heading', { name: 'Papas Gulasch', level: 1 })).toBeInTheDocument();
   expect(screen.getByText('von Papa · 90 Min.')).toBeInTheDocument();
-  expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3001/rezepte/2');
+  expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:3001/rezepte/r2');
   expect(screen.queryByRole('list', { name: 'Rezepte' })).not.toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: /Zurück/ }));

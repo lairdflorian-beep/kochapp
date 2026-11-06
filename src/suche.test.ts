@@ -1,10 +1,10 @@
 import { filtereRezepte } from './suche';
 
 const rezepte = [
-  { id: 1, name: 'Omas Apfelkuchen', autor: 'Oma', dauerMinuten: 75 },
-  { id: 2, name: 'Papas Gulasch', autor: 'Papa', dauerMinuten: 90 },
-  { id: 3, name: 'Kartoffelsuppe', autor: 'Mama', dauerMinuten: 40 },
-  { id: 5, name: 'Gemüse-Lasagne', autor: 'Opa', dauerMinuten: 60 },
+  { _id: 'r1', name: 'Omas Apfelkuchen', autor: 'Oma', dauerMinuten: 75 },
+  { _id: 'r2', name: 'Papas Gulasch', autor: 'Papa', dauerMinuten: 90 },
+  { _id: 'r3', name: 'Kartoffelsuppe', autor: 'Mama', dauerMinuten: 40 },
+  { _id: 'r5', name: 'Gemüse-Lasagne', autor: 'Opa', dauerMinuten: 60 },
 ];
 
 const namen = (suchbegriff: string) => filtereRezepte(rezepte, suchbegriff).map((r) => r.name);

@@ -4,7 +4,7 @@ import type { Rezept } from '../api';
 import './RezeptDetail.css';
 
 interface RezeptDetailProps {
-  id: number;
+  id: string;
   onZurueck: () => void;
 }
 

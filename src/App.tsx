@@ -13,7 +13,7 @@ function App() {
   const [rezepte, setRezepte] = useState<Rezept[]>([]);
   const [laedt, setLaedt] = useState(true);
   const [fehler, setFehler] = useState('');
-  const [ausgewaehlteId, setAusgewaehlteId] = useState<number | null>(null);
+  const [ausgewaehlteId, setAusgewaehlteId] = useState<string | null>(null);
   const [sucheAktiv, setSucheAktiv] = useState(false);
   const [suchbegriff, setSuchbegriff] = useState('');
 

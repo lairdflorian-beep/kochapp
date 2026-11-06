@@ -9,7 +9,7 @@ interface RezeptSucheProps {
   rezepte: Rezept[];
   suchbegriff: string;
   onSuchbegriffAendern: (suchbegriff: string) => void;
-  onAuswaehlen: (id: number) => void;
+  onAuswaehlen: (id: string) => void;
   onZurueck: () => void;
 }
 

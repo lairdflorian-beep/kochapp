@@ -3,13 +3,7 @@
 ### Alle Rezepte abrufen – erwartet 200
 GET {{host}}/rezepte
 
-### Ein Rezept abrufen – erwartet 200
-GET {{host}}/rezepte/1
-
-### Unbekannte ID – erwartet 404
-GET {{host}}/rezepte/99
-
-### Rezept anlegen – erwartet 201
+### Rezept anlegen – erwartet 201, die vergebene ID wird für die nächste Anfrage gemerkt
 POST {{host}}/rezepte
 Content-Type: application/json
 
@@ -18,6 +12,17 @@ Content-Type: application/json
   "autor": "Lena",
   "dauerMinuten": 35
 }
+
+> {% client.global.set("rezeptId", response.body._id); %}
+
+### Ein Rezept abrufen – erwartet 200
+GET {{host}}/rezepte/{{rezeptId}}
+
+### Unbekannte ID – erwartet 404
+GET {{host}}/rezepte/000000000000000000000000
+
+### Ungültige ID – erwartet 404
+GET {{host}}/rezepte/99
 
 ### Ohne name – erwartet 400
 POST {{host}}/rezepte

@@ -1,13 +1,14 @@
 const API_URL = 'http://localhost:3001';
 
+// MongoDB vergibt die ID im Feld _id als Zeichenkette.
 export interface Rezept {
-  id: number;
+  _id: string;
   name: string;
   autor: string;
   dauerMinuten: number;
 }
 
-export type NeuesRezept = Omit<Rezept, 'id'>;
+export type NeuesRezept = Omit<Rezept, '_id'>;
 
 const laufendeAnfragen = new Map<string, Promise<unknown>>();
 
@@ -31,7 +32,7 @@ export function ladeRezepte(): Promise<Rezept[]> {
   return lade<Rezept[]>('/rezepte');
 }
 
-export function ladeRezept(id: number): Promise<Rezept> {
+export function ladeRezept(id: string): Promise<Rezept> {
   return lade<Rezept>(`/rezepte/${id}`);
 }
 
