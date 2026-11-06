@@ -1,0 +1,51 @@
+/* Formular zum Anlegen eines Rezepts. */
+.rezept-formular {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid #bdbdbd;
+  border-radius: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.rezept-formular h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.rezept-formular label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #666;
+  font-size: 16px;
+}
+
+.rezept-formular input {
+  padding: 10px;
+  border: 1px solid #bdbdbd;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.rezept-formular button {
+  padding: 12px;
+  border: none;
+  border-radius: 15px;
+  color: white;
+  background-color: #424242;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.rezept-formular button:disabled {
+  background-color: #9e9e9e;
+  cursor: default;
+}
+
+.rezept-formular-fehler {
+  margin: 0;
+  color: #b3261e;
+}

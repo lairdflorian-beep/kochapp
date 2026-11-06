@@ -11,3 +11,13 @@ h1 {
   margin: 0 0 30px;
   font-size: 30px;
 }
+
+/* Lade- und Fehlerhinweise. */
+.status {
+  margin: 30px 0;
+  color: #666;
+}
+
+.status-fehler {
+  color: #b3261e;
+}
