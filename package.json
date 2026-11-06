@@ -19,6 +19,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "server": "node server/server.ts",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -42,6 +43,6 @@
     ]
   },
   "devDependencies": {
-    "@types/express": "^4.17.25"
+    "@types/express": "^5.0.6"
   }
 }
