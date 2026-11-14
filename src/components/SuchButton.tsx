@@ -1,5 +1,4 @@
-import React from 'react';
-import './SuchButton.css';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 interface SuchButtonProps {
   onSuchen: () => void;
@@ -7,16 +6,28 @@ interface SuchButtonProps {
 
 function SuchButton({ onSuchen }: SuchButtonProps) {
   return (
-    <button
-      id="suche"
-      className="suche"
-      type="button"
-      onClick={onSuchen}
-    >
-      Rezept suchen
-    </button>
+    <Pressable style={styles.suche} onPress={onSuchen}>
+      <Text style={styles.text}>Rezept suchen</Text>
+    </Pressable>
   );
 }
 
-export default SuchButton;
+const styles = StyleSheet.create({
+  suche: {
+    flex: 1,
+    minHeight: 56,
+    padding: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+    backgroundColor: '#424242',
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+});
 
+export default SuchButton;

@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { File, Paths } from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Rezept } from '../data/rezepte';
-import { MAX_FOTO_BYTES } from '../data/speicher';
+import { stile } from '../stile';
+import Knopf from './Knopf';
 
 interface RezeptFormularProps {
   rezept: Rezept;
@@ -15,50 +19,25 @@ function RezeptFormular({ rezept, neu = false, onSpeichern, onAbbrechen }: Rezep
   const [zutaten, setZutaten] = useState(rezept.zutaten.join('\n'));
   const [zubereitung, setZubereitung] = useState(rezept.zubereitung.join('\n'));
   const [foto, setFoto] = useState(rezept.foto);
-  const [fotoFehler, setFotoFehler] = useState('');
-  const [fotoLaedt, setFotoLaedt] = useState(false);
   const [fehler, setFehler] = useState('');
-  const nameFeld = useRef<HTMLInputElement>(null);
-  const fotoFeld = useRef<HTMLInputElement>(null);
-  const leser = useRef<FileReader | null>(null);
 
-  useEffect(() => {
-    nameFeld.current?.focus();
-    return () => { leser.current?.abort(); };
-  }, []);
-
-  function fotoAuswaehlen(event: React.ChangeEvent<HTMLInputElement>) {
-    const datei = event.target.files?.[0];
-    event.target.value = '';
-    if (!datei) return;
-    leser.current?.abort();
-    setFotoLaedt(false);
-    setFotoFehler('');
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(datei.type)) {
-      setFotoFehler('Bitte ein Foto im Format JPG, PNG oder WebP auswählen.');
-      return;
+  // Ersetzt <input type="file">: öffnet die Foto-Galerie des Smartphones.
+  async function fotoAuswaehlen() {
+    const ergebnis = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
+    if (ergebnis.canceled) return;
+    try {
+      // Das ausgewählte Foto liegt nur in einem Zwischenspeicher. Damit es
+      // dauerhaft erhalten bleibt, wird es in den Ordner der App kopiert.
+      const auswahl = new File(ergebnis.assets[0].uri);
+      const kopie = new File(Paths.document, `foto-${Date.now()}${auswahl.extension}`);
+      await auswahl.copy(kopie);
+      setFoto(kopie.uri);
+    } catch {
+      setFehler('Das Foto konnte nicht gelesen werden. Bitte erneut versuchen.');
     }
-    if (datei.size === 0 || datei.size > MAX_FOTO_BYTES) {
-      setFotoFehler('Das Foto darf nicht leer und höchstens 2 MB groß sein.');
-      return;
-    }
-    const reader = new FileReader();
-    leser.current = reader;
-    setFotoLaedt(true);
-    reader.onload = () => {
-      if (typeof reader.result === 'string') setFoto(reader.result);
-      setFotoLaedt(false);
-    };
-    reader.onerror = () => {
-      setFotoFehler('Das Foto konnte nicht gelesen werden. Bitte erneut versuchen.');
-      setFotoLaedt(false);
-    };
-    reader.readAsDataURL(datei);
   }
 
-  function speichern(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (fotoLaedt) return;
+  function speichern() {
     const dauerMinuten = Number(dauer);
     if (!name.trim() || !dauer.trim() ||
         !Number.isSafeInteger(dauerMinuten) || dauerMinuten <= 0) {
@@ -83,45 +62,60 @@ function RezeptFormular({ rezept, neu = false, onSpeichern, onAbbrechen }: Rezep
   }
 
   return (
-    <form className="rezept-formular" onSubmit={speichern}>
-      <h1>{neu ? 'Neues Rezept' : 'Rezept bearbeiten'}</h1>
-      <label htmlFor="rezept-name">Rezeptname</label>
-      <input id="rezept-name" ref={nameFeld} placeholder="z. B. Omas Apfelkuchen" value={name} onChange={(event) => setName(event.target.value)} required />
+    <ScrollView style={stile.seite} contentContainerStyle={styles.inhalt} keyboardShouldPersistTaps="handled">
+      <Text style={[stile.label, styles.erstesLabel]}>Rezeptname</Text>
+      <TextInput style={stile.eingabe} placeholder="z. B. Omas Apfelkuchen" value={name} onChangeText={setName} />
 
-      <label htmlFor="rezept-dauer">Zubereitungszeit (Minuten)</label>
-      <input id="rezept-dauer" type="number" min="1" step="1" placeholder="z. B. 75" value={dauer} onChange={(event) => setDauer(event.target.value)} required />
+      <Text style={stile.label}>Zubereitungszeit (Minuten)</Text>
+      <TextInput style={stile.eingabe} placeholder="z. B. 75" value={dauer} onChangeText={setDauer}
+        keyboardType="number-pad" />
 
-      <label htmlFor="rezept-zutaten">Zutaten (eine pro Zeile)</label>
-      <textarea id="rezept-zutaten" rows={5} placeholder="Eine Zutat pro Zeile" value={zutaten} onChange={(event) => setZutaten(event.target.value)} required />
+      <Text style={stile.label}>Zutaten (eine pro Zeile)</Text>
+      <TextInput style={[stile.eingabe, stile.mehrzeilig]} placeholder="Eine Zutat pro Zeile" value={zutaten}
+        onChangeText={setZutaten} multiline />
 
-      <label htmlFor="rezept-zubereitung">Zubereitung (ein Schritt pro Zeile)</label>
-      <textarea id="rezept-zubereitung" rows={5} placeholder="Ein Schritt pro Zeile" value={zubereitung} onChange={(event) => setZubereitung(event.target.value)} required />
+      <Text style={stile.label}>Zubereitung (ein Schritt pro Zeile)</Text>
+      <TextInput style={[stile.eingabe, stile.mehrzeilig]} placeholder="Ein Schritt pro Zeile" value={zubereitung}
+        onChangeText={setZubereitung} multiline />
 
-      <div className="foto-auswahl">
-        {foto && <img className="foto-vorschau" src={foto} alt="Vorschau des Rezeptfotos" />}
-        <input className="visuell-versteckt" id="rezept-foto" type="file" ref={fotoFeld} tabIndex={-1}
-          aria-label="Rezeptfoto auswählen" accept="image/jpeg,image/png,image/webp" onChange={fotoAuswaehlen} />
-        <button className="rezept-aktion" type="button" onClick={() => fotoFeld.current?.click()}>
-          {foto || !neu ? 'Foto ändern' : 'Foto hinzufügen'}
-        </button>
-        {foto && <button className="text-button" type="button" onClick={() => {
-          leser.current?.abort();
-          setFotoLaedt(false);
-          setFoto(undefined);
-          setFotoFehler('');
-        }}>Foto entfernen</button>}
-        <p className="rezept-hinweis">Optional: JPG, PNG oder WebP, maximal 2 MB.</p>
-        {fotoLaedt && <p role="status">Foto wird geladen …</p>}
-        {fotoFehler && <p className="rezept-fehler" role="alert">{fotoFehler}</p>}
-      </div>
+      {foto && <Image style={styles.fotoVorschau} source={{ uri: foto }} />}
+      <View style={stile.aktionen}>
+        <Knopf titel={foto ? 'Foto ändern' : 'Foto hinzufügen'} onPress={fotoAuswaehlen} />
+      </View>
+      {foto && <Pressable style={styles.textButton} onPress={() => setFoto(undefined)}>
+        <Text style={styles.textButtonText}>Foto entfernen</Text>
+      </Pressable>}
 
-      {fehler && <p className="rezept-fehler" role="alert">{fehler}</p>}
-      <div className="rezept-aktionen">
-        <button className="rezept-aktion" type="submit" disabled={fotoLaedt}>Speichern</button>
-        <button className="rezept-aktion" type="button" onClick={onAbbrechen}>Abbrechen</button>
-      </div>
-    </form>
+      {fehler !== '' && <Text style={stile.fehler}>{fehler}</Text>}
+      <View style={stile.aktionen}>
+        <Knopf titel="Speichern" onPress={speichern} />
+        <Knopf titel="Abbrechen" onPress={onAbbrechen} />
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  inhalt: {
+    paddingBottom: 60,
+  },
+  erstesLabel: {
+    marginTop: 0,
+  },
+  fotoVorschau: {
+    height: 160,
+    marginTop: 24,
+    borderRadius: 12,
+  },
+  textButton: {
+    padding: 12,
+    alignItems: 'center',
+  },
+  textButtonText: {
+    fontSize: 16,
+    color: '#252525',
+    textDecorationLine: 'underline',
+  },
+});
 
 export default RezeptFormular;
