@@ -4,7 +4,11 @@ const app = express();
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 
-app.use(cors({ origin: "http://localhost:3000" }));
+// Port und Adresse des Frontends kommen aus Umgebungsvariablen, die bisherigen Werte bleiben Standard.
+const port = process.env.PORT || 3001;
+const origin = process.env.CORS_ORIGIN || "http://localhost:3000";
+
+app.use(cors({ origin }));
 
 app.use(express.json());
 
@@ -86,6 +90,6 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
     res.status(500).json({ error: "Die Datenbank ist gerade nicht erreichbar." });
 });
 
-app.listen(3001, () => {
-    console.log("Server läuft unter http://localhost:3001");
+app.listen(port, () => {
+    console.log(`Server läuft auf Port ${port}`);
 });
