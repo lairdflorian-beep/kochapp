@@ -1,16 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Rezept } from '../Rezept';
 import RezeptKarte from './RezeptKarte';
 import './RezeptListe.css';
 
-const rezepte = [
-  { id: 'omas-apfelkuchen', name: 'Omas Apfelkuchen', autor: 'Oma', dauerMinuten: 75 },
-  { id: 'papas-gulasch', name: 'Papas Gulasch', autor: 'Papa', dauerMinuten: 90 },
-  { id: 'kartoffelsuppe', name: 'Kartoffelsuppe', autor: 'Mama', dauerMinuten: 40 },
-  { id: 'pfannkuchen', name: 'Pfannkuchen', autor: 'Lena', dauerMinuten: 20 },
-  { id: 'gemuese-lasagne', name: 'Gemüse-Lasagne', autor: 'Opa', dauerMinuten: 60 },
-];
+interface RezeptListeProps {
+  onAuswahl?: (id: number) => void;
+}
 
-function RezeptListe() {
+function RezeptListe({ onAuswahl }: RezeptListeProps) {
+  const [rezepte, setRezepte] = useState<Rezept[]>([]);
+
+  useEffect(() => {
+    fetch('/rezepte')
+      .then((antwort) => antwort.json())
+      .then((daten: Rezept[]) => setRezepte(daten))
+      .catch(() => setRezepte([]));
+  }, []);
+
   return (
     <ul className="rezept-liste" aria-label="Rezepte">
       {rezepte.map((rezept) => (
@@ -19,6 +25,7 @@ function RezeptListe() {
             name={rezept.name}
             autor={rezept.autor}
             dauerMinuten={rezept.dauerMinuten}
+            onClick={() => onAuswahl?.(rezept.id)}
           />
         </li>
       ))}
@@ -27,4 +34,3 @@ function RezeptListe() {
 }
 
 export default RezeptListe;
-

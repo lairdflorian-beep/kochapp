@@ -1,0 +1,23 @@
+.rezept-detail {
+  margin: 30px 0;
+  padding: 15px;
+  border: 1px solid #bdbdbd;
+  border-radius: 15px;
+  background-color: white;
+}
+
+.rezept-detail h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.rezept-detail p {
+  margin: 0 0 6px;
+  color: #666;
+  font-size: 16px;
+}
+
+.rezept-zurueck {
+  color: #252525;
+  font-size: 16px;
+}

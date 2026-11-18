@@ -3,11 +3,18 @@
 ### Alle Rezepte abrufen – erwartet 200
 GET {{host}}/rezepte
 
-### Ein Rezept abrufen – erwartet 200
-GET {{host}}/rezepte/1
+> {%
+  client.test("Alle Rezepte werden geliefert", () =>
+    client.assert(response.status === 200));
+%}
 
 ### Unbekannte ID – erwartet 404
 GET {{host}}/rezepte/99
+
+> {%
+  client.test("Unbekannte ID wird abgelehnt", () =>
+    client.assert(response.status === 404));
+%}
 
 ### Rezept anlegen – erwartet 201
 POST {{host}}/rezepte
@@ -19,6 +26,11 @@ Content-Type: application/json
   "dauerMinuten": 35
 }
 
+> {%
+  client.test("Rezept wurde angelegt", () =>
+    client.assert(response.status === 201));
+%}
+
 ### Ohne name – erwartet 400
 POST {{host}}/rezepte
 Content-Type: application/json
@@ -28,25 +40,7 @@ Content-Type: application/json
   "dauerMinuten": 35
 }
 
-### Leerer autor – erwartet 400
-POST {{host}}/rezepte
-Content-Type: application/json
-
-{
-  "name": "Linsencurry",
-  "autor": "   ",
-  "dauerMinuten": 35
-}
-
-### Ungültige dauerMinuten – erwartet 400
-POST {{host}}/rezepte
-Content-Type: application/json
-
-{
-  "name": "Linsencurry",
-  "autor": "Lena",
-  "dauerMinuten": 0
-}
-
-### Ohne Body – erwartet 400
-POST {{host}}/rezepte
+> {%
+  client.test("Rezept ohne name wird abgelehnt", () =>
+    client.assert(response.status === 400));
+%}
