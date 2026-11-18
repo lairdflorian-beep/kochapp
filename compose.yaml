@@ -1,0 +1,26 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "3001:3001"
+    environment:
+      MONGODB_URL: mongodb://mongo:27017
+      CORS_ORIGIN: http://localhost:8080
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:9
+    volumes:
+      - mongo-daten:/data/db
+volumes:
+  mongo-daten:
